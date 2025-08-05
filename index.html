@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Kharcha Splitter</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="language-toggle">
+    <label for="lang">🌐 भाषा चुनें: </label>
+    <select id="lang" onchange="setLanguage()">
+      <option value="hi">हिंदी</option>
+      <option value="en">English</option>
+    </select>
+  </div>
+
+  <h2 id="title">💰 स्मार्ट खर्चा बाँटने वाला ऐप</h2>
+
+  <div class="input-area">
+    <div id="inputs">
+      <div class="person">
+        <input type="text" class="name" placeholder="नाम" />
+        <input type="number" class="amount" placeholder="₹" />
+      </div>
+      <div class="person">
+        <input type="text" class="name" placeholder="नाम" />
+        <input type="number" class="amount" placeholder="₹" />
+      </div>
+      <div class="person">
+        <input type="text" class="name" placeholder="नाम" />
+        <input type="number" class="amount" placeholder="₹" />
+      </div>
+    </div>
+    <button onclick="addPerson()" id="addBtn">➕ व्यक्ति जोड़ें</button>
+    <button onclick="calculate()" id="calcBtn">📊 हिसाब करें</button>
+  </div>
+
+  <div id="result"></div>
+
+  <div class="actions">
+    <button onclick="copyResult()" id="copyBtn">📋 कॉपी करें</button>
+    <button onclick="downloadResult()" id="saveBtn">💾 सेव करें</button>
+  </div>
+
+  <script>
+    let currentLang = 'hi';
+
+    const langData = {
+      hi: {
+        title: '💰 स्मार्ट खर्चा बाँटने वाला ऐप',
+        add: '➕ व्यक्ति जोड़ें',
+        calc: '📊 हिसाब करें',
+        copy: '📋 कॉपी करें',
+        save: '💾 सेव करें',
+        defaultName: 'व्यक्ति'
+      },
+      en: {
+        title: '💰 Smart Expense Splitter App',
+        add: '➕ Add Person',
+        calc: '📊 Calculate',
+        copy: '📋 Copy',
+        save: '💾 Save',
+        defaultName: 'Person'
+      }
+    };
+
+    function setLanguage() {
+      currentLang = document.getElementById('lang').value;
+      const data = langData[currentLang];
+      document.getElementById('title').innerText = data.title;
+      document.getElementById('addBtn').innerText = data.add;
+      document.getElementById('calcBtn').innerText = data.calc;
+      document.getElementById('copyBtn').innerText = data.copy;
+      document.getElementById('saveBtn').innerText = data.save;
+    }
+
+    function addPerson() {
+      const div = document.createElement('div');
+      div.className = 'person';
+      div.innerHTML = `<input type="text" class="name" placeholder="नाम" /> <input type="number" class="amount" placeholder="₹" />`;
+      document.getElementById('inputs').appendChild(div);
+    }
+
+    function calculate() {
+      const names = document.querySelectorAll('.person .name');
+      const amounts = document.querySelectorAll('.person .amount');
+
+      let values = [];
+      let total = 0;
+
+      for (let i = 0; i < amounts.length; i++) {
+        const name = names[i].value.trim() || `${langData[currentLang].defaultName} ${i + 1}`;
+        const val = parseFloat(amounts[i].value) || 0;
+        values.push({ name, val });
+        total += val;
+      }
+
+      const perPerson = total / values.length;
+      let result = `<h3>📋 ${currentLang === 'hi' ? 'टोटल खर्च' : 'Total Expense'}: ₹${total.toFixed(2)}</h3>`;
+      result += `<p>${currentLang === 'hi' ? 'प्रति व्यक्ति' : 'Per Person'}: ₹${perPerson.toFixed(2)}</p>`;
+
+      result += '<ul>';
+      values.forEach(person => {
+        const diff = person.val - perPerson;
+        const text = `${person.name} ${currentLang === 'hi' ? (diff >= 0 ? 'को मिलने' : 'को देने') : (diff >= 0 ? 'should receive' : 'should pay')} ₹${Math.abs(diff).toFixed(2)}`;
+        result += `<li>${text}</li>`;
+      });
+      result += '</ul>';
+
+      document.getElementById('result').innerHTML = result;
+    }
+
+    function copyResult() {
+      const text = document.getElementById('result').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert(currentLang === 'hi' ? '📋 कॉपी हो गया!' : '📋 Copied!');
+      });
+    }
+
+    function downloadResult() {
+      const text = document.getElementById('result').innerText;
+      const blob = new Blob([text], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'kharcha-hisab.txt';
+      link.click();
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Noto Sans Devanagari', sans-serif;
+      background: linear-gradient(135deg, #fddde6, #d0f0c0, #d0e7f9);
+      background-size: 600% 600%;
+      animation: gradientBG 15s ease infinite;
+      text-align: center;
+      padding: 20px;
+      color: #333;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .input-area {
+      margin-bottom: 20px;
+      background: #ffffffcc;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      display: inline-block;
+    }
+
+    .person input {
+      margin: 5px;
+      padding: 8px;
+      width: 120px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      margin: 5px;
+      background-color: #ff7f50;
+      color: white;
+      padding: 10px 20px;
+      font-size: 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #ff5722;
+    }
+
+    #result {
+      margin-top: 20px;
+      background: #ffffffdd;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: left;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .actions {
+      margin-top: 15px;
+    }
+
+    .language-toggle {
+      margin-bottom: 15px;
+    }
+
+    select {
+      padding: 5px 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    @media (max-width: 600px) {
+      .person input {
+        width: 90%;
+      }
+
+      #result {
+        padding: 10px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</body>
+</html>
