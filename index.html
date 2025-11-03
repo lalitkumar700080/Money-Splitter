@@ -4,13 +4,132 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Smart Kharcha Splitter</title>
-  <!-- AdMob SDK -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"></script>
-  <link rel="stylesheet" href="style.css"/>
+
+  <style>
+    body {
+      font-family: 'Noto Sans Devanagari', sans-serif;
+      background: linear-gradient(120deg, #f6d365, #fda085, #a1c4fd, #c2e9fb);
+      background-size: 400% 400%;
+      animation: gradientMove 15s ease infinite;
+      text-align: center;
+      padding: 20px;
+      color: #333;
+      min-height: 100vh;
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    h2 {
+      font-size: 1.6rem;
+      color: #222;
+      margin-bottom: 20px;
+    }
+
+    .language-toggle {
+      margin-bottom: 15px;
+      background: #ffffffaa;
+      padding: 10px 15px;
+      border-radius: 10px;
+      display: inline-block;
+    }
+
+    select {
+      padding: 6px 10px;
+      font-size: 15px;
+      border-radius: 6px;
+      border: 1px solid #aaa;
+      outline: none;
+    }
+
+    .input-area {
+      background: #ffffffcc;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      display: inline-block;
+      margin-bottom: 15px;
+      width: 90%;
+      max-width: 420px;
+    }
+
+    .person {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .person input {
+      margin: 5px;
+      padding: 10px;
+      width: 120px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 20px;
+      font-size: 15px;
+      border: none;
+      border-radius: 8px;
+      margin: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #result {
+      margin-top: 20px;
+      background: #ffffffdd;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 450px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: left;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    #result h3 {
+      text-align: center;
+      color: #444;
+    }
+
+    #result ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    #result li {
+      padding: 6px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    @media (max-width: 600px) {
+      .person input {
+        width: 90%;
+      }
+
+      button {
+        width: 90%;
+      }
+    }
+  </style>
 </head>
+
 <body>
   <div class="language-toggle">
-    <label for="lang">🌐 भाषा चुनें: </label>
+    <label for="lang">🌐 भाषा / Language: </label>
     <select id="lang" onchange="setLanguage()">
       <option value="hi">हिंदी</option>
       <option value="en">English</option>
@@ -23,40 +142,23 @@
     <div id="inputs">
       <div class="person">
         <input type="text" class="name" placeholder="नाम" />
-        <input type="number" class="amount" placeholder="₹" />
+        <input type="number" class="amount" placeholder="₹ खर्चा" />
       </div>
       <div class="person">
         <input type="text" class="name" placeholder="नाम" />
-        <input type="number" class="amount" placeholder="₹" />
-      </div>
-      <div class="person">
-        <input type="text" class="name" placeholder="नाम" />
-        <input type="number" class="amount" placeholder="₹" />
+        <input type="number" class="amount" placeholder="₹ खर्चा" />
       </div>
     </div>
+
     <button onclick="addPerson()" id="addBtn">➕ व्यक्ति जोड़ें</button>
     <button onclick="calculate()" id="calcBtn">📊 हिसाब करें</button>
   </div>
 
   <div id="result"></div>
 
-  <div class="actions">
+  <div>
     <button onclick="copyResult()" id="copyBtn">📋 कॉपी करें</button>
     <button onclick="downloadResult()" id="saveBtn">💾 सेव करें</button>
-  </div>
-
-  <!-- AdMob Banner Ad -->
-  <div class="ad-container">
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="data-ad-client="ca-app-pub-3990959202082221/8793698354"
-         data-ad-slot="ca-app-pub-3990959202082221~7824231611""
-         data-ad-slot="ca-app-pub-3990959202082221/8458688257"
-         data-ad-format="auto"
-         data-full-width-responsive="true"></ins>
-    <script>
-      (adsbygoogle = window.adsbygoogle || []).push({});
-    </script>
   </div>
 
   <script>
@@ -69,7 +171,14 @@
         calc: '📊 हिसाब करें',
         copy: '📋 कॉपी करें',
         save: '💾 सेव करें',
-        defaultName: 'व्यक्ति'
+        name: 'नाम',
+        amount: '₹ खर्चा',
+        total: 'कुल खर्च',
+        per: 'प्रति व्यक्ति खर्च',
+        get: 'को मिलने',
+        give: 'को देने',
+        copied: '📋 कॉपी हो गया!',
+        saved: '💾 फाइल सेव हो गई!'
       },
       en: {
         title: '💰 Smart Expense Splitter App',
@@ -77,169 +186,82 @@
         calc: '📊 Calculate',
         copy: '📋 Copy',
         save: '💾 Save',
-        defaultName: 'Person'
+        name: 'Name',
+        amount: '₹ Expense',
+        total: 'Total Expense',
+        per: 'Per Person',
+        get: 'should receive',
+        give: 'should pay',
+        copied: '📋 Copied!',
+        saved: '💾 File Saved!'
       }
     };
 
     function setLanguage() {
       currentLang = document.getElementById('lang').value;
-      const data = langData[currentLang];
-      document.getElementById('title').innerText = data.title;
-      document.getElementById('addBtn').innerText = data.add;
-      document.getElementById('calcBtn').innerText = data.calc;
-      document.getElementById('copyBtn').innerText = data.copy;
-      document.getElementById('saveBtn').innerText = data.save;
+      const d = langData[currentLang];
+      document.getElementById('title').innerText = d.title;
+      document.getElementById('addBtn').innerText = d.add;
+      document.getElementById('calcBtn').innerText = d.calc;
+      document.getElementById('copyBtn').innerText = d.copy;
+      document.getElementById('saveBtn').innerText = d.save;
+
+      document.querySelectorAll('.name').forEach(i => i.placeholder = d.name);
+      document.querySelectorAll('.amount').forEach(i => i.placeholder = d.amount);
     }
 
     function addPerson() {
+      const d = langData[currentLang];
       const div = document.createElement('div');
       div.className = 'person';
-      div.innerHTML = `<input type="text" class="name" placeholder="नाम" /> <input type="number" class="amount" placeholder="₹" />`;
+      div.innerHTML = `
+        <input type="text" class="name" placeholder="${d.name}" />
+        <input type="number" class="amount" placeholder="${d.amount}" />
+      `;
       document.getElementById('inputs').appendChild(div);
     }
 
     function calculate() {
-      const names = document.querySelectorAll('.person .name');
-      const amounts = document.querySelectorAll('.person .amount');
+      const names = document.querySelectorAll('.name');
+      const amounts = document.querySelectorAll('.amount');
+      const d = langData[currentLang];
 
-      let values = [];
       let total = 0;
+      const values = [];
 
-      for (let i = 0; i < amounts.length; i++) {
-        const name = names[i].value.trim() || `${langData[currentLang].defaultName} ${i + 1}`;
+      for (let i = 0; i < names.length; i++) {
+        const name = names[i].value.trim() || `${d.name} ${i+1}`;
         const val = parseFloat(amounts[i].value) || 0;
-        values.push({ name, val });
         total += val;
+        values.push({ name, val });
       }
 
       const perPerson = total / values.length;
-      let result = `<h3>📋 ${currentLang === 'hi' ? 'टोटल खर्च' : 'Total Expense'}: ₹${total.toFixed(2)}</h3>`;
-      result += `<p>${currentLang === 'hi' ? 'प्रति व्यक्ति' : 'Per Person'}: ₹${perPerson.toFixed(2)}</p>`;
+      let result = `<h3>${d.total}: ₹${total.toFixed(2)}</h3>`;
+      result += `<p>${d.per}: ₹${perPerson.toFixed(2)}</p><ul>`;
 
-      result += '<ul>';
-      values.forEach(person => {
-        const diff = person.val - perPerson;
-        const text = `${person.name} ${currentLang === 'hi' ? (diff >= 0 ? 'को मिलने' : 'को देने') : (diff >= 0 ? 'should receive' : 'should pay')} ₹${Math.abs(diff).toFixed(2)}`;
-        result += `<li>${text}</li>`;
+      values.forEach(p => {
+        const diff = p.val - perPerson;
+        const action = diff >= 0 ? d.get : d.give;
+        result += `<li>${p.name} ${action} ₹${Math.abs(diff).toFixed(2)}</li>`;
       });
-      result += '</ul>';
-
+      result += "</ul>";
       document.getElementById('result').innerHTML = result;
     }
 
     function copyResult() {
-      const text = document.getElementById('result').innerText;
-      navigator.clipboard.writeText(text).then(() => {
-        alert(currentLang === 'hi' ? '📋 कॉपी हो गया!' : '📋 Copied!');
-      });
+      navigator.clipboard.writeText(document.getElementById('result').innerText);
+      alert(langData[currentLang].copied);
     }
 
     function downloadResult() {
-      const text = document.getElementById('result').innerText;
-      const blob = new Blob([text], { type: 'text/plain' });
+      const blob = new Blob([document.getElementById('result').innerText], { type: 'text/plain' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = 'kharcha-hisab.txt';
+      link.download = 'kharcha.txt';
       link.click();
+      alert(langData[currentLang].saved);
     }
   </script>
-
-  <style>
-    body {
-      font-family: 'Noto Sans Devanagari', sans-serif;
-      background: linear-gradient(135deg, #fddde6, #d0f0c0, #d0e7f9);
-      background-size: 600% 600%;
-      animation: gradientBG 15s ease infinite;
-      text-align: center;
-      padding: 20px;
-      color: #333;
-    }
-
-    @keyframes gradientBG {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    .input-area {
-      margin-bottom: 20px;
-      background: #ffffffcc;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      display: inline-block;
-    }
-
-    .person input {
-      margin: 5px;
-      padding: 8px;
-      width: 120px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-
-    button {
-      margin: 5px;
-      background-color: #ff7f50;
-      color: white;
-      padding: 10px 20px;
-      font-size: 14px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    button:hover {
-      background-color: #ff5722;
-    }
-
-    #result {
-      margin-top: 20px;
-      background: #ffffffdd;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 400px;
-      margin-left: auto;
-      margin-right: auto;
-      text-align: left;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-
-    .actions {
-      margin-top: 15px;
-    }
-
-    .language-toggle {
-      margin-bottom: 15px;
-    }
-
-    select {
-      padding: 5px 10px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-
-    .ad-container {
-      margin-top: 20px;
-      text-align: center;
-    }
-
-    @media (max-width: 600px) {
-      .person input {
-        width: 90%;
-      }
-
-      #result {
-        padding: 10px;
-        font-size: 14px;
-      }
-
-      .ad-container {
-        margin: 10px auto;
-      }
-    }
-  </style>
 </body>
 </html>
